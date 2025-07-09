@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'conceitos.dart';
+import 'lista_conceitos.dart';
+
 class HomeScreen extends StatefulWidget{
   const HomeScreen({super.key});
 
@@ -12,7 +15,6 @@ class HomeScreen extends StatefulWidget{
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> _emojis = ['🍎', '🚗', '🐶', '🎲', '🚀', '🎵', '🍕', '🐱'];
 
   List<_CardModel> _cards = [];
 
@@ -26,9 +28,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _initializeCards() {
-    final fullList = List<String>.from(_emojis)..addAll(_emojis);
+    final fullList = List<Conceitos>.from(conceitos)..addAll(conceitos);
     fullList.shuffle(Random());
-    _cards = fullList.map((e) => _CardModel(value: e)).toList();
+    _cards = [];
+
+    for(var i = 0; i<=5; i++){
+      _cards.add(_CardModel(value: fullList[i], texto: fullList[i].nome));
+      _cards.add(_CardModel(value: fullList[i], texto: fullList[i].descricao));
+    }
+    _cards.shuffle(Random());
     setState(() {});
   }
 
@@ -41,10 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (_selectedIndices.length == 2) {
-      final first = _cards[_selectedIndices[0]];
-      final second = _cards[_selectedIndices[1]];
+      _CardModel first = _cards[_selectedIndices[0]];
+      _CardModel second = _cards[_selectedIndices[1]];
 
-      if (first.value == second.value) {
+      if (first.value.id == second.value.id) {
         setState(() {
           first.isMatched = true;
           second.isMatched = true;
@@ -64,15 +72,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gridSize = 4;
+    final gridSize = 3;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Jogo da Memória'),
-        centerTitle: true,
+        toolbarHeight: 1,
+
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(6.0),
         child: GridView.builder(
           itemCount: _cards.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -100,8 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  card.isFlipped || card.isMatched ? card.value : '',
-                  style: TextStyle(fontSize: 32),
+                  card.isFlipped || card.isMatched ? card.texto : '',
+                  textAlign: TextAlign.center,
                 ),
               ),
             );
@@ -109,18 +117,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.refresh),
         onPressed: _initializeCards,
         tooltip: "Reiniciar",
+        child: Icon(Icons.refresh),
       ),
     );
   }
 }
 
 class _CardModel {
-  final String value;
+  final Conceitos value;
   bool isFlipped = false;
   bool isMatched = false;
-
-  _CardModel({required this.value});
+  final String texto;
+  _CardModel({required this.value, required this.texto });
 }
